@@ -15,6 +15,7 @@ declare global {
   interface Navigator {
     deviceMemory?: number | undefined
     hardwareConcurrency?: number | undefined
+    cpuClass?: string | undefined
   }
 }
 
@@ -29,6 +30,7 @@ export default class OSDetector {
     cpuCount: number | undefined;
     platform: string | undefined;
     userAgent: string | undefined
+    arch: string | undefined
   }
 
   constructor () {
@@ -40,7 +42,8 @@ export default class OSDetector {
       ram: undefined,
       cpuCount: undefined,
       platform: undefined,
-      userAgent: undefined
+      userAgent: undefined,
+      arch: undefined
     }
   }
 
@@ -75,6 +78,7 @@ export default class OSDetector {
       this.detected.version = found.version({ userAgent, platform })
       this.detected.isMobile = found.isMobile({ userAgent, platform, version: this.detected.version })
       this.detected.name = found.name({ userAgent, platform, version: this.detected.version })
+      this.detected.arch = found.arch({ platform, userAgent })
     }
     return this.detected
   }
@@ -89,6 +93,10 @@ export default class OSDetector {
 
   platform () {
     return this.detected.platform
+  }
+
+  arch () {
+    return this.detected.arch
   }
 
   userAgent () {

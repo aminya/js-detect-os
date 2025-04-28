@@ -6,7 +6,8 @@
             "ESNext",
             "DOM"
         ],
-        "sourceMap": true
+        "sourceMap": true,
+        "declaration": true
     },
     "include": [
         "lib/**/*"

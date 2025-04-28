@@ -2,8 +2,8 @@
   "name": "detect-os",
   "version": "1.2.1",
   "description": "Detect current running OS including version and codename.",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/index.mjs",
+  "types": "dist/index.d.mts",
   "scripts": {
     "lint": "cd ./lib && standard",
     "lint-fix": "cd ./lib && standard --fix",

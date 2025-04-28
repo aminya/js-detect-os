@@ -46,15 +46,15 @@ export const android: Target = {
   },
   name ({ version = '' }) {
     const found = androidVersions.find(entry => entry[1].test(version))
-    return found && found[0]
+    return found?.[0]
   },
   arch ({ platform = '', userAgent = '' }) {
     if (platform.toLowerCase().includes('aarch64')) {
-      return 'aarch64'
+      return 'arm64'
     }
 
     const match = userAgent.match(/armv.*;/i)
-    return match?.find(entry => entry.includes('armv'))
+    return match?.find(entry => entry.includes('armv')) ?? arch(navigator)
   }
 }
 
@@ -65,13 +65,13 @@ export const ios: Target = {
   isMobile: () => true,
   version ({ userAgent = '' }) {
     const match = userAgent.match(ios.agent)
-    return match?.[1] && match[1].replace(underscore, '.')
+    return match?.[1]?.replace(underscore, '.')
   },
   name () {
     return undefined
   },
   arch () {
-    return undefined
+    return arch(navigator)
   }
 }
 
@@ -100,11 +100,11 @@ export const macos: Target = {
   agent: /os x ((\d+[._])+\d+)\b/i,
   isMobile: () => false,
   arch () {
-    return undefined
+    return arch(navigator)
   },
   version ({ userAgent = '' }) {
     const match = userAgent.match(macos.agent)
-    return match?.[1] && match[1].replace(underscore, '.')
+    return match?.[1]?.replace(underscore, '.')
   },
   name ({ version = '' }) {
     const found = macosVersions.find(entry => entry[1].test(version))
@@ -119,61 +119,47 @@ export const windows: Target = {
   isMobile: ({ userAgent = '' }) => userAgent.toLowerCase().indexOf('windows phone') > -1,
   arch ({ platform, userAgent }) {
     if (platform === 'win64') {
-      return '64'
+      return 'x64'
     }
-    // useragent
-    // WOW64
-    // Win64
+    return arch(navigator)
   },
   name () {
     return undefined
   },
   version ({ userAgent = '' }) {
     const match = userAgent.match(windows.agent)
-    let v
-    if (match && match[1]) {
+    if (match?.[1]) {
       switch (match[1]) {
         case '6.4':
         case '10.0':
           // some versions of Firefox mistakenly used 6.4
-          v = '10.0'
-          break
+          return '10.0';
         case '6.3':
         case '8.1':
-          v = '8.1'
-          break
+          return '8.1';
         case '6.2':
         case '8.0':
-          v = '8'
-          break
+          return '8'
         case '6.1':
         case '7.0':
-          v = '7'
-          break
+          return '7'
         case '6.0':
-          v = 'Vista'
-          break
+          return 'Vista'
         case '5.2':
-          v = 'Server 2003'
-          break
+          return 'Server 2003'
         case '5.1':
-          v = 'XP'
-          break
+          return 'XP'
         case '5.01':
-          v = '2000 SP1'
-          break
+          return '2000 SP1'
         case '5.0':
-          v = '2000'
-          break
+          return '2000';
         case '4.0':
-          v = '4.0'
-          break
+          return '4.0'
         default:
-          // nothing
-          break
+          // fallthrough
       }
     }
-    return v
+    return undefined
   }
 }
 
@@ -184,11 +170,12 @@ export const linux: Target = {
   agent: /(?!.*android.*)(linux|x11|ubuntu)/i,
   arch ({ platform = '' }) {
     if (platform.indexOf('i686') > -1) {
-      return '32'
+      return 'ia32'
     }
     if (platform.indexOf('x86_64') > -1) {
-      return '64'
+      return 'x64'
     }
+    return arch(navigator)
   },
   name () {
     return undefined
@@ -196,4 +183,59 @@ export const linux: Target = {
   version () {
     return undefined
   }
+}
+
+const x64 = [
+  'x64',
+  'x86_64',
+  'x86-64',
+  'Win64',
+  'amd64',
+  'AMD64',
+  'WOW64',
+  'wow64',
+  'x64_64',
+  'MacIntel',
+  'macintel'
+]
+
+const x86 = [
+  'x86',
+  'ia32',
+  'i386',
+  'i686',
+  'x86_32', 
+  'X86',
+]
+
+const arm64 = [
+  'arm64', 
+  'aarch64',
+  'WOA',
+  'woa',
+  'WOA64',
+  'woa64',
+]
+
+function arch(navigator: Partial<Navigator>) {
+  const sources = [
+    navigator.userAgent,
+    navigator.platform,
+    navigator.cpuClass
+  ]
+  .filter(s => typeof s === 'string')
+
+  for (const source of sources) {
+    if (source && x64.some((str) => source.toLowerCase().includes(str))) {
+      return 'x64'
+    }
+    if (source && x86.some((str) => source.toLowerCase().includes(str))) {
+      return 'x86'
+    }
+    if (source && arm64.some((str) => source.toLowerCase().includes(str))) {
+      return 'arm64'
+    }
+  }
+
+  return 'x86'
 }
