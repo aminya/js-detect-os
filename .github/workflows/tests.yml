@@ -36,7 +36,7 @@ jobs:
           ${{ runner.os }}-node-${{ matrix.node-version }}
 
     - run: npm ci
-    - run: npm run build-full --if-present
+    - run: npm run build --if-present
     - run: npm run lint
     - run: npm run test-coverage
     - run: npm run ci-coverage

@@ -1,6 +1,22 @@
 const underscore = /_/g
 
-const androidVersions = [
+type Args = {
+  userAgent?: string
+  platform?: string
+  version?: string
+}
+
+export type Target = {
+  os: string
+  platform: RegExp
+  agent: RegExp
+  isMobile: (args: Args) => boolean
+  version: (args: Omit<Args, 'version'>) => string | undefined
+  name: (args: Args) => string | undefined
+  arch: (args: Args) => string | undefined
+}
+
+const androidVersions: [string, RegExp][] = [
   ['Android 11', /^11.*$/],
   ['Android 10', /^10.*$/],
   ['Pie', /^9.*$/],
@@ -19,14 +35,14 @@ const androidVersions = [
   ['Cupcake', /^1.5.*$/],
   ['Petit Four', /^1.1.*$/]
 ]
-export const android = {
+export const android: Target = {
   os: 'android',
   platform: /android.*|aarch64|arm.*/i,
   agent: /(?:android|adr) (\d+([._]\d+)*)/i,
   isMobile: () => true,
   version ({ userAgent = '' }) {
     const match = userAgent.match(android.agent)
-    return match && match[1]
+    return match?.[1]
   },
   name ({ version = '' }) {
     const found = androidVersions.find(entry => entry[1].test(version))
@@ -38,18 +54,18 @@ export const android = {
     }
 
     const match = userAgent.match(/armv.*;/i)
-    return match && match.find(entry => entry.includes('armv'))
+    return match?.find(entry => entry.includes('armv'))
   }
 }
 
-export const ios = {
+export const ios: Target = {
   os: 'ios',
   platform: /(?:iphone|ipod|ipad|Pike v.*)/i,
   agent: /os ((\d+[._])+\d+) like mac os x/i,
   isMobile: () => true,
   version ({ userAgent = '' }) {
     const match = userAgent.match(ios.agent)
-    return match && match[1] && match[1].replace(underscore, '.')
+    return match?.[1] && match[1].replace(underscore, '.')
   },
   name () {
     return undefined
@@ -59,7 +75,7 @@ export const ios = {
   }
 }
 
-const macosVersions = [
+const macosVersions: [string, RegExp][] = [
   ['Catalina', /^10.15.*$/],
   ['Mojave', /^10.14.*$/],
   ['High Sierra', /^10.13.*$/],
@@ -78,7 +94,7 @@ const macosVersions = [
   ['Cheetah', /^10.0.*$/]
 ]
 
-export const macos = {
+export const macos: Target = {
   os: 'macos',
   platform: /mac.*/i,
   agent: /os x ((\d+[._])+\d+)\b/i,
@@ -88,15 +104,15 @@ export const macos = {
   },
   version ({ userAgent = '' }) {
     const match = userAgent.match(macos.agent)
-    return match && match[1] && match[1].replace(underscore, '.')
+    return match?.[1] && match[1].replace(underscore, '.')
   },
-  name ({ version }) {
+  name ({ version = '' }) {
     const found = macosVersions.find(entry => entry[1].test(version))
-    return found && found[0]
+    return found?.[0]
   }
 }
 
-export const windows = {
+export const windows: Target = {
   os: 'windows',
   platform: /win.*/i,
   agent: /win(?:dows)?(?: phone)?[ _]?(?:(?:nt|9x) )?((?:(\d+\.)*\d+)|xp|me|ce)\b/i,
@@ -161,7 +177,7 @@ export const windows = {
   }
 }
 
-export const linux = {
+export const linux: Target = {
   os: 'linux',
   isMobile: ({ userAgent = '' }) => userAgent.toLowerCase().indexOf('mobi') > -1,
   platform: /(?:linux.*)/i,

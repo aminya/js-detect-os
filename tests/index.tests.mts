@@ -1,11 +1,26 @@
 import { assert } from 'chai'
 import { describe, it } from 'mocha'
-import OSDetector from '../lib/index'
+import OSDetector from '../lib/index.mjs'
+import type { Target } from '../lib/platforms.mjs'
 
-const getRunner = (target, { version, name, isMobile, deviceMemory = 4, hardwareConcurrency = 2 }) => ({ userAgent, platform, debug }) => {
+type Opts = {
+  version?: RegExp
+  name?: string
+  isMobile?: boolean
+  deviceMemory?: number
+  hardwareConcurrency?: number
+}
+
+type RunnerArgs = {
+  userAgent: string
+  platform?: string
+  debug?: boolean
+}
+
+const getRunner = (target: Target, { version, name, isMobile, deviceMemory = 4, hardwareConcurrency = 2 }: Opts) => ({ userAgent, platform, debug }: RunnerArgs) => {
   const detector = new OSDetector()
   detector.debug = debug
-  const navigator = {
+  const navigator: Partial<Navigator> = {
     userAgent: userAgent,
     platform: platform,
     deviceMemory: deviceMemory,
@@ -24,7 +39,7 @@ const getRunner = (target, { version, name, isMobile, deviceMemory = 4, hardware
   })
 
   if (version) {
-    assert.isTrue(version.test(detected.version), detected.version)
+    assert.isTrue(version.test(detected.version ?? ''), detected.version)
   }
 }
 

@@ -1,17 +1,36 @@
-import { android, macos, ios, linux, windows } from './platforms'
+import { android, macos, ios, linux, windows, type Target } from './platforms.mjs'
 
 const allPlatforms = [android, windows, ios, macos, linux]
 
-function isPlatform (target, { strict = true, navigator = window.navigator } = {}) {
+function isPlatform (target: Target, { strict = true, navigator = window.navigator }: { strict?: boolean; navigator?: Partial<Navigator> } = {}) {
   const { platform, userAgent } = navigator
-  const platformMatch = target.platform.test(platform)
-  const agentMatch = target.agent.test(userAgent)
+  const platformMatch = platform ? target.platform.test(platform) : false
+  const agentMatch = userAgent ? target.agent.test(userAgent) : false
   return strict
     ? platformMatch && agentMatch
     : platformMatch || agentMatch
 }
 
-class OSDetector {
+declare global {
+  interface Navigator {
+    deviceMemory?: number | undefined
+    hardwareConcurrency?: number | undefined
+  }
+}
+
+export default class OSDetector {
+  debug?: boolean
+  detected: {
+    os: string | undefined;
+    isMobile: boolean | undefined;
+    name: string | undefined;
+    version: string | undefined;
+    ram: number | undefined;
+    cpuCount: number | undefined;
+    platform: string | undefined;
+    userAgent: string | undefined
+  }
+
   constructor () {
     this.detected = {
       os: undefined,
@@ -35,7 +54,7 @@ class OSDetector {
     }
   }
 
-  detect (navigator = window.navigator) {
+  detect (navigator: Partial<Navigator> = window.navigator) {
     // always assign navigator values
     const { userAgent } = navigator
     const { platform } = navigator
@@ -92,5 +111,3 @@ class OSDetector {
     return this.detected.cpuCount
   }
 }
-
-export default OSDetector

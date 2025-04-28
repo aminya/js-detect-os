@@ -1,0 +1,19 @@
+{
+    "extends": "@tsconfig/node-lts",
+    "compilerOptions": {
+        "outDir": "./dist",
+        "lib": [
+            "ESNext",
+            "DOM"
+        ],
+        "sourceMap": true
+    },
+    "include": [
+        "lib/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist",
+        "tests"
+    ]
+}

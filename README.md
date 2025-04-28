@@ -21,6 +21,16 @@ Uses mainly `navigator.platform` and `navigator.userAgent` as second guess for d
 
 No legacy support yet, no support for OS-minorites yet. **Feel free to contribute!**
 
+```js
+import OSDetector from 'detect-os';
+
+const detector = new OSDetector();
+detector.detect();
+
+console.log(detector.isMobile());
+console.log(detector.os());
+```
+
 ## Why not use feature detection instead?
 
 Yes we all know this is the better option. However, this package intends to

@@ -3,18 +3,17 @@
   "version": "1.2.1",
   "description": "Detect current running OS including version and codename.",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "lint": "cd ./lib && standard",
     "lint-fix": "cd ./lib && standard --fix",
     "lint-test": "npm run lint && npm test",
-    "test": "mocha --require @babel/register \"tests/**/*.tests.js\"",
-    "test-coverage": "nyc --reporter=html --reporter=json-summary --reporter=lcov --reporter=text mocha --require @babel/register \"tests/**/*.tests.js\"",
+    "test": "mocha \"tests/**/*.tests.mts\"",
+    "test-coverage": "nyc mocha \"tests/**/*.tests.mts\"",
     "ci-coverage": "node .coverage.js > coverage/final.txt",
     "test-watch": "npm test -- --watch",
-    "build": "rm -rf ./dist/** && babel lib --out-dir ./dist --ignore **/*.tests.js --source-maps",
-    "build-min": "minify ./dist/index.js --out-file ./dist/index.min.js --mangle.keepFnName --mangle.keepClassName --",
-    "build-full": "npm run build && npm run build-min",
-    "build-ci": "npm run lint && npm run test && npm run build-full"
+    "build": "rm -rf ./dist/** && tsc --pretty",
+    "build-ci": "npm run lint && npm run test && npm run build"
   },
   "repository": {
     "type": "git",
@@ -25,26 +24,23 @@
   "bugs": {
     "url": "https://github.com/jankapunkt/js-detect-os/issues"
   },
-  "babel": {
-    "presets": [
-      "@babel/env"
-    ]
-  },
   "files": [
     "/dist"
   ],
   "homepage": "https://github.com/jankapunkt/js-detect-os#readme",
   "devDependencies": {
-    "@babel/cli": "^7.14.3",
-    "@babel/core": "^7.14.3",
-    "@babel/preset-env": "^7.14.2",
-    "@babel/register": "^7.13.16",
-    "babel-minify": "^0.5.1",
-    "chai": "^4.3.4",
-    "mocha": "^8.4.0",
-    "nyc": "^15.1.0",
+    "@types/chai": "^5",
+    "@types/mocha": "^10",
+    "@types/node": "^22",
+    "chai": "^5.2.0",
+    "mocha": "^11.1.0",
+    "nyc": "17.1.0",
     "snazzy": "^9.0.0",
-    "standard": "^16.0.3"
+    "standard": "^16.0.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3",
+    "@tsconfig/node-lts": "^22.0.1",
+    "@istanbuljs/nyc-config-typescript": "1.0.2"
   },
   "dependencies": {}
 }
